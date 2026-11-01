@@ -1,7 +1,10 @@
 // tickets.go
 package main
 
-import "context"
+import (
+    "context"
+    "errors"
+)
 
 type Ticket struct {
     ID      int64
@@ -9,21 +12,25 @@ type Ticket struct {
 }
 
 func GetTicketByID(ctx context.Context, id int64) (*Ticket, error) {
-    // stub: pretend this hits a database
     return &Ticket{ID: id}, nil
 }
 
+func CanWriteTicket(ctx context.Context, t *Ticket) bool {
+    return true // stub: replace with a real ownership check
+}
+
 func DeleteTicket(ctx context.Context, t *Ticket) error {
-    // stub: pretend this deletes the record
     return nil
 }
 
-// removeTicket fetches a ticket by ID and deletes it with no permission
-// check, the same shape as CVE-2026-58438 (Gitea RemoveDependency).
 func removeTicket(ctx context.Context, ticketID int64) error {
     ticket, err := GetTicketByID(ctx, ticketID)
     if err != nil {
         return err
+    }
+    allowed := CanWriteTicket(ctx, ticket)
+    if !allowed {
+        return errors.New("forbidden")
     }
     return DeleteTicket(ctx, ticket)
 }

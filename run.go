@@ -2,6 +2,6 @@ package main
 
 import "os/exec"
 
-func vulnerable(someVar string) {
-    exec.Command("sh", "-c", someVar).Run()
+func safe(someVar string) {
+    exec.Command("echo", someVar).Run()
 }
